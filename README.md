@@ -15,3 +15,4 @@ model.add(Dense(84, 10, activation='softmax', input_shape=(84, 1)))
 ```
 can perform pretty well in the MINIST set which proves that my code is capable of implementing basic deep learning functionality.
 
+![屏幕截图 2023-06-11 141914](C:\Users\GAO\Pictures\Screenshots\屏幕截图 2023-06-11 141914.png)
