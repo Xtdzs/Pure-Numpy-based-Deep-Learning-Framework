@@ -14,6 +14,7 @@ model.add(Dense(120, 84, activation='relu', input_shape=(400, 1)))
 model.add(Dense(84, 10, activation='softmax', input_shape=(84, 1)))
 ```
 can perform pretty well in the MINIST set which proves that my code is capable of implementing basic deep learning functionality.
+
 (This model only use 5 *epoches* and *learning_rate* of 0.1 without any optimizer and training.)
 
-![屏幕截图 2023-06-11 141914](C:\Users\GAO\Pictures\Screenshots\屏幕截图 2023-06-11 141914.png)
+![screen_shot_1](./images/screen_shot_1.png)
