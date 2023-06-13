@@ -1,5 +1,5 @@
 # A brief description of the achieved effect
-A numpy-based deep learning framework (not including tensorflow, pytorch and other existing frameworks)
+A pure numpy-based deep learning framework (not including TensorFlow, PyTorch, or other existing frameworks)
 
 Just as written in main.py, the model
 ```python
@@ -13,8 +13,8 @@ model.add(Dense(400, 120, activation='relu', input_shape=(5, 5, 16)))
 model.add(Dense(120, 84, activation='relu', input_shape=(400, 1)))
 model.add(Dense(84, 10, activation='softmax', input_shape=(84, 1)))
 ```
-can perform pretty well in the MINIST set which proves that my code is capable of implementing basic deep learning functionality.
+can perform pretty well in the MINIST set which proves that my code is capable of implementing basic deep-learning functionality.
 
-(This model only use 5 *epoches* and *learning_rate* of 0.1 without any optimizer and training.)
+(This model only uses 5 *epochs* and *learning_rate* of 0.1 without any optimizer or training.)
 
 ![screen_shot_1](./images/screen_shot_1.png)
