@@ -2,10 +2,14 @@ import numpy as np
 
 
 class Conv2D:
+    iteration = 0
+
     def __init__(self, filters, kernel_size, strides=(1, 1), input_shape=None, padding='valid', data_format=None,
                  dilation_rate=(1, 1), learning_rate=0.01,
                  activation='linear', use_bias=True, kernel_initializer='glorot_uniform', bias_initializer='zeros'):
-        self.input_shape = None
+        Conv2D.iteration += 1
+        self.iteration = Conv2D.iteration
+        self.input_shape = input_shape
         self.name = 'Conv2D'
         self.filters = filters
         self.kernel_size = kernel_size
@@ -30,13 +34,17 @@ class Conv2D:
         self.d_biases = None
 
         if kernel_initializer == 'glorot_uniform':
-            self.weights = np.random.randn(kernel_size[0], kernel_size[1], input_shape[2], filters) * np.sqrt( 2 / (input_shape[0] * input_shape[1] * input_shape[2]))
+            self.weights = np.random.randn(kernel_size[0], kernel_size[1], input_shape[2], filters) * np.sqrt(
+                2 / (input_shape[0] * input_shape[1] * input_shape[2]))
         elif kernel_initializer == 'glorot_normal':
-            self.weights = np.random.randn(kernel_size[0], kernel_size[1], input_shape[2], filters) * np.sqrt( 1 / (input_shape[0] * input_shape[1] * input_shape[2]))
+            self.weights = np.random.randn(kernel_size[0], kernel_size[1], input_shape[2], filters) * np.sqrt(
+                1 / (input_shape[0] * input_shape[1] * input_shape[2]))
         elif kernel_initializer == 'he_uniform':
-            self.weights = np.random.randn(kernel_size[0], kernel_size[1], input_shape[2], filters) * np.sqrt( 2 / input_shape[3])
+            self.weights = np.random.randn(kernel_size[0], kernel_size[1], input_shape[2], filters) * np.sqrt(
+                2 / input_shape[3])
         elif kernel_initializer == 'he_normal':
-            self.weights = np.random.randn(kernel_size[0], kernel_size[1], input_shape[2], filters) * np.sqrt( 1 / input_shape[3])
+            self.weights = np.random.randn(kernel_size[0], kernel_size[1], input_shape[2], filters) * np.sqrt(
+                1 / input_shape[3])
         elif kernel_initializer == 'zeros':
             self.weights = np.zeros((kernel_size[0], kernel_size[1], input_shape[2], filters))
         elif kernel_initializer == 'ones':
@@ -94,8 +102,9 @@ class Conv2D:
         if self.padding == 'valid':
             self.Z = np.zeros((self.input.shape[0], self.input.shape[1] - self.kernel_size[0] + 1,
                                self.input.shape[2] - self.kernel_size[1] + 1, self.filters))
-            self.output = np.zeros((self.input.shape[0], ((self.input.shape[1] - self.kernel_size[0])//self.strides[0] + 1),
-                                    ((self.input.shape[2] - self.kernel_size[1])//self.strides[1] + 1), self.filters))
+            self.output = np.zeros(
+                (self.input.shape[0], ((self.input.shape[1] - self.kernel_size[0]) // self.strides[0] + 1),
+                 ((self.input.shape[2] - self.kernel_size[1]) // self.strides[1] + 1), self.filters))
         elif self.padding == 'same':
             self.Z = np.zeros((self.input.shape[0], self.input.shape[1], self.input.shape[2], self.filters))
             self.output = np.zeros((self.input.shape[0], self.input.shape[1], self.input.shape[2], self.filters))
@@ -108,7 +117,9 @@ class Conv2D:
         for f in range(self.filters):
             for i in range(self.output.shape[1]):
                 for j in range(self.output.shape[2]):
-                    self.Z[:, i, j, f] = np.sum(np.multiply(self.input[:, i:i + self.kernel_size[0], j:j + self.kernel_size[1], :], self.weights[:, :, :, f]), axis=(1, 2, 3)) + self.biases[0, 0, 0, f]
+                    self.Z[:, i, j, f] = np.sum(
+                        np.multiply(self.input[:, i:i + self.kernel_size[0], j:j + self.kernel_size[1], :],
+                                    self.weights[:, :, :, f]), axis=(1, 2, 3)) + self.biases[0, 0, 0, f]
 
         if self.activation is not None:
             self.output = self.act_func(self.Z)
@@ -131,12 +142,18 @@ class Conv2D:
         for f in range(self.filters):
             for i in range(self.output.shape[1]):
                 for j in range(self.output.shape[2]):
-                    self.d_weights[:, :, :, f] += np.sum(self.input[:, i:i + self.kernel_size[0], j:j + self.kernel_size[1]] * self.d_Z[:, i, j, f][:, None, None, None], axis=0) / self.input.shape[0]
-                    self.d_input[:, i:i + self.kernel_size[0], j:j + self.kernel_size[1]] += self.weights[:, :, :, f] * self.d_Z[:, i, j, f][:, None, None, None]
+                    self.d_weights[:, :, :, f] += np.sum(
+                        self.input[:, i:i + self.kernel_size[0], j:j + self.kernel_size[1]] * self.d_Z[:, i, j, f][:,
+                                                                                              None, None, None],
+                        axis=0) / self.input.shape[0]
+                    self.d_input[:, i:i + self.kernel_size[0], j:j + self.kernel_size[1]] += self.weights[:, :, :,
+                                                                                             f] * self.d_Z[:, i, j, f][
+                                                                                                  :, None, None, None]
                     self.d_biases[0, 0, 0, f] += np.sum(self.d_Z[:, i, j, f]) / self.input.shape[0]
 
         if self.padding == 'same':
-            self.d_input = self.d_input[:, self.kernel_size[0] // 2:-self.kernel_size[0] // 2, self.kernel_size[1] // 2:-self.kernel_size[1] // 2]
+            self.d_input = self.d_input[:, self.kernel_size[0] // 2:-self.kernel_size[0] // 2,
+                           self.kernel_size[1] // 2:-self.kernel_size[1] // 2]
 
         return self.d_input
 
@@ -145,4 +162,7 @@ class Conv2D:
         self.biases -= self.learning_rate * self.d_biases
 
     def output_shape(self):
-        return f'{self.input_shape}'
+        return f'({self.input_shape[0] - self.kernel_size[0] + 1}, {self.input_shape[1] - self.kernel_size[1] + 1}, {self.filters})'
+
+    def get_interation(self):
+        return self.iteration

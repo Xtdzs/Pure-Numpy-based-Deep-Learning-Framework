@@ -2,8 +2,12 @@ import numpy as np
 
 
 class Pool:
+    interation = 0
+
     def __init__(self, pool_size=(2, 2), strides=None, padding='valid', data_format=None, method='max',
                  input_shape=None):
+        Pool.interation += 1
+        self.iteration = Pool.interation
         self.name = 'Pool'
         self.pool_size = pool_size
         self.strides = strides
@@ -81,3 +85,6 @@ class Pool:
 
     def output_shape(self):
         return f'({self.input_shape[0] // self.pool_size[0]}, {self.input_shape[1] // self.pool_size[1]}, {self.input_shape[2]})'
+
+    def get_interation(self):
+        return self.iteration

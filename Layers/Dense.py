@@ -2,8 +2,12 @@ import numpy as np
 
 
 class Dense:
+    interation = 0
+
     def __init__(self, input_size, output_size, activation, learning_rate=0.01, lambd=0, momentum=False, beta_1=0,
-                 RMSprop=False, beta_2=0, Adam=False, decay_rate=0, input_shape=None):
+                 RMSprop=False, beta_2=0, Adam=False, decay_rate=0):
+        Dense.interation += 1
+        self.iteration = Dense.interation
         self.name = 'Dense'
         self.last_is_flatten = False
         self.learning_rate = learning_rate
@@ -89,7 +93,8 @@ class Dense:
     def backward(self, d_input):
         self.d_input = d_input
         self.d_Z = self.act_func_deriv(self.output) * self.d_input
-        self.d_weights = np.dot(self.d_Z, self.input.T).T / self.input.shape[1] + self.lambd * self.weights / self.input.shape[1]
+        self.d_weights = np.dot(self.d_Z, self.input.T).T / self.input.shape[1] + self.lambd * self.weights / \
+                         self.input.shape[1]
         self.d_biases = np.sum(self.d_Z, axis=1, keepdims=True) / self.input.shape[1]
         self.d_output = np.dot(self.weights, self.d_Z)
 
@@ -106,7 +111,8 @@ class Dense:
         return self.d_output
 
     def momentum_do(self):
-        self.v_d_weights = np.reshape(np.zeros((self.input_size, self.output_size)), (self.input_size, self.output_size))
+        self.v_d_weights = np.reshape(np.zeros((self.input_size, self.output_size)),
+                                      (self.input_size, self.output_size))
         self.v_d_biases = np.reshape(np.zeros((self.output_size, 1)), (self.output_size, 1))
 
         self.v_d_weights = self.beta_1 * self.v_d_weights + (1 - self.beta_1) * self.d_weights
@@ -115,7 +121,8 @@ class Dense:
         self.d_biases = self.v_d_biases
 
     def RMSprop_do(self):
-        self.s_d_weights = np.reshape(np.zeros((self.input_size, self.output_size)), (self.input_size, self.output_size))
+        self.s_d_weights = np.reshape(np.zeros((self.input_size, self.output_size)),
+                                      (self.input_size, self.output_size))
         self.s_d_biases = np.reshape(np.zeros((self.output_size, 1)), (self.output_size, 1))
 
         self.s_d_weights = self.beta_2 * self.s_d_weights + (1 - self.beta_2) * np.square(self.d_weights)
@@ -124,13 +131,17 @@ class Dense:
         self.d_biases /= np.sqrt(self.s_d_biases + self.epsilon)
 
     def Adam_do(self):
-        self.v_d_weights = np.reshape(np.zeros((self.input_size, self.output_size)), (self.input_size, self.output_size))
+        self.v_d_weights = np.reshape(np.zeros((self.input_size, self.output_size)),
+                                      (self.input_size, self.output_size))
         self.v_d_biases = np.reshape(np.zeros((self.output_size, 1)), (self.output_size, 1))
-        self.s_d_weights = np.reshape(np.zeros((self.input_size, self.output_size)), (self.input_size, self.output_size))
+        self.s_d_weights = np.reshape(np.zeros((self.input_size, self.output_size)),
+                                      (self.input_size, self.output_size))
         self.s_d_biases = np.reshape(np.zeros((self.output_size, 1)), (self.output_size, 1))
-        self.v_d_weights_corrected = np.reshape(np.zeros((self.input_size, self.output_size)), (self.input_size, self.output_size))
+        self.v_d_weights_corrected = np.reshape(np.zeros((self.input_size, self.output_size)),
+                                                (self.input_size, self.output_size))
         self.v_d_biases_corrected = np.reshape(np.zeros((self.output_size, 1)), (self.output_size, 1))
-        self.s_d_weights_corrected = np.reshape(np.zeros((self.input_size, self.output_size)), (self.input_size, self.output_size))
+        self.s_d_weights_corrected = np.reshape(np.zeros((self.input_size, self.output_size)),
+                                                (self.input_size, self.output_size))
         self.s_d_biases_corrected = np.reshape(np.zeros((self.output_size, 1)), (self.output_size, 1))
 
         self.v_d_weights = self.beta_1 * self.v_d_weights + (1 - self.beta_1) * self.d_weights
@@ -148,3 +159,6 @@ class Dense:
         self.params = []
         self.params.append(self.weights.reshape(-1, 1))
         self.params.append(self.biases.reshape(-1, 1))
+
+    def get_interation(self):
+        return self.iteration

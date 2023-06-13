@@ -11,12 +11,9 @@ class Dropout:
         self.d_output = None
         self.mask = None
 
-    def forward(self, input, train_flg=True):
-        if train_flg:
-            self.mask = np.random.rand(*input.shape) >= self.dropout_ratio
-            self.output = np.multiply(input, self.mask) / (1 - self.dropout_ratio)
-        else:
-            self.output = input
+    def forward(self, input):
+        self.mask = np.random.rand(*input.shape) >= self.dropout_ratio
+        self.output = np.multiply(input, self.mask) / (1 - self.dropout_ratio)
         return self.output
 
     def backward(self, d_input):

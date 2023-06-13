@@ -97,7 +97,7 @@ class Sequential:
             if layer.name == 'Dropout' or layer.name == 'Flatten':
                 continue
             output_shape = layer.output_shape()
-            print("{:<25s}{:<30s}{:<10d}".format(f"{layer.name}_{i + 1}", output_shape, layer.get_params()))
+            print("{:<25s}{:<30s}{:<10d}".format(f"{layer.name}_{layer.iteration}", output_shape, layer.get_params()))
             if i < len(self.layers) - 1:
                 print("_________________________________________________________________")
             total_params += layer.get_params()
