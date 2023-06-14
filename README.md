@@ -1,6 +1,8 @@
 # A brief description of the achieved effect
 A pure numpy-based deep learning framework (not including TensorFlow, PyTorch, or other existing frameworks)
 
+(It may help you understand more deeply how neural networks are implemented.)
+
 Just as written in main.py, the model
 ```python
 model = Sequential()
