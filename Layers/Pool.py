@@ -1,11 +1,13 @@
 import numpy as np
+from Layers.Layer import Layer
 
 
-class Pool:
+class Pool(Layer):
     interation = 0
 
     def __init__(self, pool_size=(2, 2), strides=None, padding='valid', data_format=None, method='max',
-                 input_shape=None):
+                 input_shape=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         Pool.interation += 1
         self.iteration = Pool.interation
         self.name = 'Pool'
@@ -35,13 +37,14 @@ class Pool:
                     self.mask[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
                     j * self.pool_size[1]:(j + 1) * self.pool_size[1], :] \
                         = (input[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
-                           j * self.pool_size[1]:(j + 1) * self.pool_size[1], :] == self.output[:, i, j, :][:, None, None, :])
+                           j * self.pool_size[1]:(j + 1) * self.pool_size[1], :] == self.output[:, i, j, :][:, None,
+                                                                                    None, :])
                     self.mask[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
                     j * self.pool_size[1]:(j + 1) * self.pool_size[1], :] \
                         = self.mask[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
-                        j * self.pool_size[1]:(j + 1) * self.pool_size[1], :] / \
-                        np.sum(self.mask[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
-                               j * self.pool_size[1]:(j + 1) * self.pool_size[1], :], axis=(1, 2))[:, None, None, :]
+                          j * self.pool_size[1]:(j + 1) * self.pool_size[1], :] / \
+                          np.sum(self.mask[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
+                                 j * self.pool_size[1]:(j + 1) * self.pool_size[1], :], axis=(1, 2))[:, None, None, :]
 
         elif self.method == 'average':
             for i in range(self.output.shape[1]):

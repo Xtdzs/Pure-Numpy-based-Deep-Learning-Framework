@@ -1,12 +1,15 @@
 import numpy as np
+from Layers.Layer import Layer
 
 
-class Conv2D:
+class Conv2D(Layer):
     iteration = 0
 
     def __init__(self, filters, kernel_size, strides=(1, 1), input_shape=None, padding='valid', data_format=None,
                  dilation_rate=(1, 1), learning_rate=0.01,
-                 activation='linear', use_bias=True, kernel_initializer='glorot_uniform', bias_initializer='zeros'):
+                 activation='linear', use_bias=True, kernel_initializer='glorot_uniform', bias_initializer='zeros',
+                 *args, **kwargs):
+        super().__init__(*args, **kwargs)
         Conv2D.iteration += 1
         self.iteration = Conv2D.iteration
         self.input_shape = input_shape

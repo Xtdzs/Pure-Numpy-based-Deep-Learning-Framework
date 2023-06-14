@@ -1,8 +1,10 @@
 import numpy as np
+from Layers.Layer import Layer
 
 
-class Dropout:
-    def __init__(self, dropout_ratio=0.5):
+class Dropout(Layer):
+    def __init__(self, dropout_ratio=0.5, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.name = 'Dropout'
         self.dropout_ratio = dropout_ratio
         self.input = None

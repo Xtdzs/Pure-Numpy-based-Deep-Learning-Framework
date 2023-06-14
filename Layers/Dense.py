@@ -1,11 +1,13 @@
 import numpy as np
+from Layers.Layer import Layer
 
 
-class Dense:
+class Dense(Layer):
     interation = 0
 
     def __init__(self, input_size, output_size, activation, learning_rate=0.01, lambd=0, momentum=False, beta_1=0,
-                 RMSprop=False, beta_2=0, Adam=False, decay_rate=0):
+                 RMSprop=False, beta_2=0, Adam=False, decay_rate=0, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         Dense.interation += 1
         self.iteration = Dense.interation
         self.name = 'Dense'

@@ -1,5 +1,9 @@
-class Flatten:
-    def __init__(self):
+from Layers.Layer import Layer
+
+
+class Flatten(Layer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.name = 'Flatten'
         self.input = None
         self.output = None
