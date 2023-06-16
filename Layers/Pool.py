@@ -12,7 +12,7 @@ class Pool(Layer):
         self.iteration = Pool.interation
         self.name = 'Pool'
         self.pool_size = pool_size
-        self.strides = strides
+        self.strides = pool_size if strides is None else strides
         self.padding = padding
         self.data_format = data_format
         self.input = None
@@ -25,33 +25,35 @@ class Pool(Layer):
 
     def forward(self, input):
         self.input = input
-        self.output = np.zeros(
-            (input.shape[0], input.shape[1] // self.pool_size[0], input.shape[2] // self.pool_size[1], input.shape[3]))
-        self.mask = np.zeros((input.shape[0], input.shape[1], input.shape[2], input.shape[3]))
+        self.output = np.zeros((input.shape[0],
+                                (input.shape[1] - self.pool_size[0]) // self.strides[0] + 1,
+                                (input.shape[2] - self.pool_size[1]) // self.strides[1] + 1,
+                                input.shape[3]))
+        self.mask = np.zeros((input.shape[0],
+                              ((input.shape[1] - self.pool_size[0]) // self.strides[0] + 1) * self.pool_size[0],
+                              ((input.shape[2] - self.pool_size[1]) // self.strides[1] + 1) * self.pool_size[1],
+                              input.shape[3]))
 
         if self.method == 'max':
             for i in range(self.output.shape[1]):
                 for j in range(self.output.shape[2]):
-                    self.output[:, i, j, :] = np.max(input[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
-                                                     j * self.pool_size[1]:(j + 1) * self.pool_size[1], :], axis=(1, 2))
+                    self.output[:, i, j, :] = np.max(
+                        input[:, i * self.strides[0]:i * self.strides[0] + self.pool_size[0],
+                        j * self.strides[1]:j * self.strides[1] + self.pool_size[1], :], axis=(1, 2))
+                    window = (input[:, i * self.strides[0]:i * self.strides[0] + self.pool_size[0],
+                              j * self.strides[1]:j * self.strides[1] + self.pool_size[1], :]
+                              == self.output[:, i, j, :][:, None, None, :])
+                    window = window / np.sum(window, axis=(1, 2))[:, None, None, :]
                     self.mask[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
-                    j * self.pool_size[1]:(j + 1) * self.pool_size[1], :] \
-                        = (input[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
-                           j * self.pool_size[1]:(j + 1) * self.pool_size[1], :] == self.output[:, i, j, :][:, None,
-                                                                                    None, :])
-                    self.mask[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
-                    j * self.pool_size[1]:(j + 1) * self.pool_size[1], :] \
-                        = self.mask[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
-                          j * self.pool_size[1]:(j + 1) * self.pool_size[1], :] / \
-                          np.sum(self.mask[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
-                                 j * self.pool_size[1]:(j + 1) * self.pool_size[1], :], axis=(1, 2))[:, None, None, :]
+                    j * self.pool_size[1]:(j + 1) * self.pool_size[1], :] = window
 
         elif self.method == 'average':
             for i in range(self.output.shape[1]):
                 for j in range(self.output.shape[2]):
-                    self.output[:, i, j, :] = np.mean(input[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
-                                                      j * self.pool_size[1]:(j + 1) * self.pool_size[1], :],
-                                                      axis=(1, 2))
+                    self.output[:, i, j, :] = np.mean(
+                        input[:, i * self.strides[0]:i * self.strides[0] + self.pool_size[0],
+                        j * self.strides[1]:j * self.strides[1] + self.pool_size[1], :], axis=(1, 2))
+
         else:
             raise ValueError('Invalid pooling method.')
 
@@ -63,18 +65,17 @@ class Pool(Layer):
         if self.method == 'max':
             for i in range(self.output.shape[1]):
                 for j in range(self.output.shape[2]):
-                    self.d_input[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
-                    j * self.pool_size[1]:(j + 1) * self.pool_size[1], :] \
-                        += d_output[:, i, j, :][:, None, None, :] \
-                           * self.mask[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
-                             j * self.pool_size[1]:(j + 1) * self.pool_size[1], :]
+                    self.d_input[:, i * self.strides[0]:i * self.strides[0] + self.pool_size[0],
+                    j * self.strides[1]:j * self.strides[1] + self.pool_size[1], :] \
+                        += d_output[:, i, j, :][:, None, None, :] * self.mask[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
+                        j * self.pool_size[1]:(j + 1) * self.pool_size[1], :]
 
         elif self.method == 'average':
             for i in range(self.output.shape[1]):
                 for j in range(self.output.shape[2]):
-                    self.d_input[:, i * self.pool_size[0]:(i + 1) * self.pool_size[0],
-                    j * self.pool_size[1]:(j + 1) * self.pool_size[1], :] += d_output[:, i, j, :][:, None, None, :] / \
-                                                                             self.pool_size[0] / self.pool_size[1]
+                    self.d_input[:, i * self.strides[0]:i * self.strides[0] + self.pool_size[0],
+                    j * self.strides[1]:j * self.strides[1] + self.pool_size[1], :] \
+                        += d_output[:, i, j, :][:, None, None, :] / (self.pool_size[0] * self.pool_size[1])
         else:
             raise ValueError('Invalid pooling method.')
 

@@ -3,8 +3,6 @@ import numpy as np
 
 class Layer:
     def __init__(self, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
         self.name = 'Layer'
         self.input = None
         self.output = None
