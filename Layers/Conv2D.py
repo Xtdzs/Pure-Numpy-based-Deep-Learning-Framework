@@ -69,7 +69,7 @@ class Conv2D(Layer):
     def get_params(self):
         return self.weights.size + self.biases.size
 
-    def get_output_shape(self):
+    def output_shape(self):
         return f'({self.input.shape[1] - self.kernel_size[0] + 1}, {self.input.shape[2] - self.kernel_size[1] + 1}, {self.filters})'
 
     def act_func(self, x):
@@ -163,9 +163,6 @@ class Conv2D(Layer):
     def update(self):
         self.weights -= self.learning_rate * self.d_weights
         self.biases -= self.learning_rate * self.d_biases
-
-    def output_shape(self):
-        return f'({self.input_shape[0] - self.kernel_size[0] + 1}, {self.input_shape[1] - self.kernel_size[1] + 1}, {self.filters})'
 
     def get_interation(self):
         return self.iteration

@@ -41,7 +41,7 @@ class Model:
 
         for epoch in range(epochs):
             print('Epoch:', epoch + 1, '/', epochs)
-            for i in range(0, X.shape[0] - batch_size, batch_size):
+            for i in range(0, X.shape[0] - batch_size + 1, batch_size):
                 self.input = X[i:i + batch_size]
                 self.output = self.forward(self.input)
                 d_Y = self.output - Y[:, i:i + batch_size]
@@ -52,7 +52,7 @@ class Model:
                 # 清除上一行输出
                 print('\r', end='')
                 # 打印进度条
-                progress = int((i + 1) / (X.shape[0] - batch_size) * 40)
+                progress = int((i + 1) / (X.shape[0] - batch_size + 1) * 40)
                 print('[' + '=' * progress + '>' + '.' * (40 - progress - 1) + ']', end='')
 
             Y_hat = self.forward(X)
